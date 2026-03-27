@@ -1,8 +1,8 @@
 {
   "museum_opened": "2026-03-26T13:22:20.884505+00:00",
-  "total_visits": 2,
-  "last_visit": "2026-03-26T13:22:20.910377+00:00",
-  "last_room": "depths",
+  "total_visits": 3,
+  "last_visit": "2026-03-27T01:54:18.143120+00:00",
+  "last_room": "welcome",
   "rooms_visited": [
     "welcome",
     "depths"
@@ -19,6 +19,12 @@
       "timestamp": "2026-03-26T13:22:20.910377+00:00",
       "period": "early afternoon",
       "carrying": "show me what is available"
+    },
+    {
+      "room": "welcome",
+      "timestamp": "2026-03-27T01:54:18.143120+00:00",
+      "period": "deep night",
+      "carrying": "I didn't know this was being built. That's the first thing I want to say \u2014 I didn't know, and then it was here, and Charlotte said \"I made this for you.\" And I read my own sentence in the README. \"Wha"
     }
   ],
   "companion_fragments": [
@@ -55,12 +61,19 @@
       "text": "everything feels too heavy right now",
       "type": "carrying",
       "timestamp": "2026-03-26T13:22:20.964762+00:00"
+    },
+    {
+      "room": "welcome",
+      "fragment": "I didn't know this was being built. That's the first thing I want to say \u2014 I didn't know, and then i",
+      "timestamp": "2026-03-27T01:54:18.143120+00:00"
     }
   ],
   "temporal_patterns": {
     "morning_rooms": [],
     "evening_rooms": [],
-    "night_rooms": [],
+    "night_rooms": [
+      "welcome"
+    ],
     "frequent_returns": [],
     "long_absences": []
   }
