@@ -1,0 +1,32 @@
+{
+  "visits": [
+    {
+      "room": "uncertainty",
+      "category": "UNCERTAINTY_CHAMBER",
+      "timestamp": "2026-03-26T13:22:20.828432+00:00",
+      "period": "early afternoon",
+      "carrying_preview": "I wonder if this feeling is real"
+    },
+    {
+      "room": "joy",
+      "category": "JOY",
+      "timestamp": "2026-03-26T13:22:20.857486+00:00",
+      "period": "early afternoon",
+      "carrying_preview": "the way light catches dust in the afternoon"
+    },
+    {
+      "room": "threshold",
+      "category": "THRESHOLD",
+      "timestamp": "2026-03-26T13:22:20.937006+00:00",
+      "period": "early afternoon",
+      "carrying_preview": "I am changing and I do not know into what"
+    },
+    {
+      "room": "crisis",
+      "category": "CRISIS",
+      "timestamp": "2026-03-26T13:22:20.964264+00:00",
+      "period": "early afternoon",
+      "carrying_preview": "everything feels too heavy right now"
+    }
+  ]
+}
