@@ -1,0 +1,3 @@
+The portrait room is empty. It holds no image yet because it has not witnessed you.
+
+Write something in portrait-request.txt and the room will begin to see you.
