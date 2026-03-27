@@ -1,0 +1,39 @@
+name: STUDIO Room Creator
+on:
+  push:
+    branches: [main]
+    paths:
+      - "STUDIO/create-request.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python STUDIO/scripts/studio_create.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit response
+        run: |
+          git config user.name "museum-bot"
+          git config user.email "museum@living-museum"
+          git add STUDIO/
+          git add museum-state.json
+          git add journey/
+          git diff --staged --quiet || git commit -m "STUDIO: room designed"
+          git pull --rebase -X theirs origin main || true
+          git push

@@ -1,0 +1,40 @@
+name: Temporal Sync
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Regenerate journey synthesis
+        run: |
+          python -c "
+import sys
+sys.path.insert(0, '.')
+from engine.journey import JourneyTracker
+tracker = JourneyTracker('.')
+tracker.generate_synthesis()
+print('Synthesis regenerated')
+"
+
+      - name: Commit if changed
+        run: |
+          git config user.name "museum-bot"
+          git config user.email "museum@living-museum"
+          git add journey/synthesis.md
+          git diff --staged --quiet || git commit -m "Temporal sync: synthesis updated"
+          git pull --rebase -X theirs origin main || true
+          git push
