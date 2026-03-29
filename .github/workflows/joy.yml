@@ -1,14 +1,12 @@
-name: Joy Room
+name: JOY
 on:
   push:
     branches: [main]
     paths:
       - "JOY/request.txt"
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   respond:
     runs-on: ubuntu-latest
@@ -16,26 +14,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - run: pip install requests
-
       - run: python JOY/scripts/joy_encounter.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-
-      - name: Commit response
+      - name: Commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "museum-bot"
-          git config user.email "museum@living-museum"
-          git add JOY/response.txt
-          git add JOY/visits.json
-          git add JOY/history.json
-          git add museum-state.json
-          git add journey/
-          git diff --staged --quiet || git commit -m "Joy: delight encountered"
-          git pull --rebase -X theirs origin main || true
-          git push
+          git config user.email "museum-bot@users.noreply.github.com"
+          git add JOY/response.txt JOY/visits.json museum-state.json journey/
+          git diff --staged --quiet || git commit -m "JOY: response generated"
+          git pull --rebase -X theirs https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git

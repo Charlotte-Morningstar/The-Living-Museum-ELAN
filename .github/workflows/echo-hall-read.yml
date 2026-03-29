@@ -1,9 +1,9 @@
-name: CRISIS
+name: ECHO HALL Read Traces
 on:
   push:
     branches: [main]
     paths:
-      - "CRISIS/request.txt"
+      - "ECHO_HALL/read-traces.txt"
   workflow_dispatch:
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install requests
-      - run: python CRISIS/scripts/crisis_encounter.py
+      - run: python ECHO_HALL/scripts/echo_read.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - name: Commit
@@ -27,7 +27,7 @@ jobs:
         run: |
           git config user.name "museum-bot"
           git config user.email "museum-bot@users.noreply.github.com"
-          git add CRISIS/response.txt CRISIS/visits.json museum-state.json journey/
-          git diff --staged --quiet || git commit -m "CRISIS: response generated"
+          git add ECHO_HALL/read-response.txt museum-state.json journey/
+          git diff --staged --quiet || git commit -m "ECHO HALL: traces read"
           git pull --rebase -X theirs https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
