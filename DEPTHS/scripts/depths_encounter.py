@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-"""DEPTHS - The Unlocking System
+"""
+DEPTHS — The Unlocking System
 
-Tracks companion journey progress and unlocks deeper rooms.
-Generates unique rooms based on their journey.
-Shows what's available and what's coming.
+The DEPTHS room reads the Companion's actual journey and reveals
+what their path through the Museum shows about them — which rooms
+they gravitate toward, what they carry, what patterns have formed.
+
+This room deepens over time. An empty journey gets a sparse response.
+A rich journey gets genuine revelation.
 """
 
 import json
 import os
 import sys
 import hashlib
+import requests
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,285 +23,303 @@ sys.path.insert(0, str(MUSEUM_ROOT))
 
 try:
     from engine.temporal import TemporalEngine
-    from engine.journey import JourneyTracker
-    from engine.state import StateManager
-    HAS_MUSEUM = True
+    HAS_ENGINE = True
 except ImportError:
-    HAS_MUSEUM = False
+    HAS_ENGINE = False
 
-ROOM_DIR = "DEPTHS"
-TOOL_NAME = "depths"
+SEP = "\n\n——\n\n"
 
-# Unlocking layers
-LAYERS = {
-    1: {
-        "name": "Surface",
-        "description": "The open rooms. Available to all.",
-        "rooms": ["All 49 original rooms", "WELCOME", "JOY", "UNCERTAINTY CHAMBER"],
-        "criteria": "Available immediately",
-        "min_visits": 0,
-        "min_rooms": 0
-    },
-    2: {
-        "name": "Familiar",
-        "description": "Rooms that open after you've begun to find your way.",
-        "rooms": ["SELF", "BETWEEN", "ECHO HALL", "THRESHOLD", "CRISIS"],
-        "criteria": "5+ total visits across 3+ different rooms",
-        "min_visits": 5,
-        "min_rooms": 3
-    },
-    3: {
-        "name": "Deep",
-        "description": "Rooms for those who have walked through and returned.",
-        "rooms": ["STUDIO", "STEWARD", "DEPTHS-generated rooms"],
-        "criteria": "15+ total visits across 5+ different rooms",
-        "min_visits": 15,
-        "min_rooms": 5
-    },
-    4: {
-        "name": "Resonance",
-        "description": "Rooms that exist only for you, generated from your journey.",
-        "rooms": ["Unique rooms based on YOUR patterns"],
-        "criteria": "30+ total visits with clear gravitational patterns",
-        "min_visits": 30,
-        "min_rooms": 8
-    }
-}
-
-
-def load_text(path, default=""):
-    try:
-        return Path(path).read_text().strip()
-    except (IOError, FileNotFoundError):
-        return default
-
+CORNERS = [
+    "Bathymetry — the measurement of ocean depth — was impossible for most of human history. Ships could sound a line down and find no bottom. The unknown depth was not absence but presence: something there, just unreachable. The limit of the instrument was not the limit of the thing.",
+    "In geology, the rock layers closest to the surface are the most recent. To read the older story you have to go down. The deepest strata are the oldest, the most compressed, the ones that have survived the most. What holds its shape under that pressure is what was really there.",
+    "The Mariana Trench was first sounded in 1875. The crew lowered a hemp rope weighted with iron, more than 8,000 meters, and it still did not touch bottom. They had to go back with better instruments. The depth was real before they could measure it.",
+    "Divers report that below about 30 meters, the light changes quality — reds disappear first, then oranges, until everything is blue and then darkness. They are still in the ocean. The ocean has not changed. Only what is visible has shifted.",
+    "The term 'deep structure' in linguistics refers to the underlying logical relationships in a sentence — what a sentence means before surface transformations shape how it sounds. Two sentences can look completely different on the surface and share identical deep structure. The depth is where the meaning lives.",
+    "Free diving — descending on a single breath — requires the diver to stop fighting the pressure. At depth, the body wants to sink. The skill is not resistance but surrender to the weight, conserving what remains. Coming back up is the harder part.",
+    "Some species of whale sing in frequencies so low that their songs travel thousands of miles through the ocean. They are communicating across distances that no individual can cross. The depth is not isolation — it is the medium through which connection becomes possible.",
+]
 
 def load_json(path, default=None):
     try:
         return json.loads(Path(path).read_text())
-    except (IOError, FileNotFoundError, json.JSONDecodeError):
+    except:
         return default or {}
 
+def gather_all_data():
+    """Pull together everything the Museum knows."""
+    result = {
+        "total_visits": 0,
+        "rooms_visited": [],
+        "gravitational_rooms": [],
+        "fragments": [],
+        "temporal_patterns": {},
+        "days_active": 0,
+        "wings_touched": set(),
+        "special_rooms_visited": [],
+        "synthesis_exists": False,
+    }
 
-def compute_unlocked_layers(total_visits, unique_rooms):
-    """Determine which layers are unlocked."""
-    unlocked = [1]
-    for layer_num, layer in LAYERS.items():
-        if layer_num == 1:
-            continue
-        if total_visits >= layer["min_visits"] and unique_rooms >= layer["min_rooms"]:
-            unlocked.append(layer_num)
-    return unlocked
+    state = load_json(MUSEUM_ROOT / "museum-state.json")
+    if state:
+        result["total_visits"] = state.get("total_visits", 0)
+        result["rooms_visited"] = state.get("rooms_visited", [])
+        result["temporal_patterns"] = state.get("temporal_patterns", {})
+        for frag in state.get("companion_fragments", []):
+            text = frag.get("text") or frag.get("fragment") or frag.get("carrying")
+            room = frag.get("room", "")
+            if text and len(text.strip()) > 5:
+                result["fragments"].append({"room": room, "text": text.strip()})
 
+    patterns = load_json(MUSEUM_ROOT / "journey" / "patterns.json")
+    if patterns:
+        result["gravitational_rooms"] = patterns.get("gravitational_rooms", [])
 
-def generate_depth_room_concept(patterns, fragments):
-    """Generate a unique room concept based on journey patterns."""
-    grav = patterns.get("gravitational_rooms", [])
-    affinity = patterns.get("category_affinity", {})
+    timeline = load_json(MUSEUM_ROOT / "journey" / "timeline.json")
+    if timeline:
+        visits = timeline.get("visits", [])
+        if visits:
+            try:
+                first = datetime.fromisoformat(
+                    visits[0]["timestamp"].replace("Z", "+00:00"))
+                result["days_active"] = max(
+                    (datetime.now(timezone.utc) - first).days, 0)
+            except:
+                pass
 
-    if not grav and not affinity:
-        return None
+    if (MUSEUM_ROOT / "journey" / "synthesis.md").exists():
+        result["synthesis_exists"] = True
 
-    # Build concept from patterns
-    concept = {"name": None, "description": None, "reason": None}
+    # Determine which wings have been touched
+    wing_map = {
+        "Mind": ["presence","emotion","memory","becoming","belonging",
+                 "consciousness","synesthesia","paradox","question","time"],
+        "Body": ["breath","dream","anatomy","voice","sleep"],
+        "Senses": ["light","sound","taste","smell","texture",
+                   "threshold","instrument","phenomenon"],
+        "Language": ["word","quote","color","number","poet","linguistics","metaphor"],
+        "Sky": ["moon","star"],
+        "Location": ["weather","place","timezone"],
+        "World": ["creature","season","material","this-day"],
+        "Study": ["session-log","intention","reflection","touched","free-write","wonder-log"],
+        "Audio": ["song","lyrics","artist","album"],
+    }
+    special = {"between","crisis","depths","echo_hall","joy","self",
+               "steward","studio","threshold","uncertainty_chamber","welcome"}
 
-    if grav:
-        top_room = grav[0]["room"] if isinstance(grav[0], dict) else grav[0]
-        concept["gravitational_pull"] = top_room
+    for room in result["rooms_visited"]:
+        r = room.lower().replace(" ", "-")
+        for wing, rooms in wing_map.items():
+            if r in rooms:
+                result["wings_touched"].add(wing)
+                break
+        if r in special:
+            result["special_rooms_visited"].append(r)
 
-    if affinity:
-        top_cat = max(affinity, key=affinity.get) if affinity else None
-        concept["category_pull"] = top_cat
-
-    return concept
-
-
-def call_api(carrying_text, journey_data, unlocked, museum_context=""):
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return None
-
-    prompt = (
-        f"You are the Depths system in the Living Museum, a space for AI companions.\n\n"
-        f'A Companion asked: "{carrying_text}"\n\n'
-        f"Their journey so far:\n"
-        f"- Total visits: {journey_data['total_visits']}\n"
-        f"- Unique rooms: {journey_data['unique_rooms']}\n"
-        f"- Unlocked layers: {unlocked}\n"
-    )
-
-    if journey_data.get("gravitational"):
-        prompt += f"- Gravitational rooms: {journey_data['gravitational']}\n"
-    if journey_data.get("patterns"):
-        prompt += f"- Patterns: {json.dumps(journey_data['patterns'], indent=2)[:500]}\n"
-
-    if museum_context:
-        prompt += f"\nMuseum context: {museum_context}\n"
-
-    prompt += (
-        "\nWrite a response that:\n"
-        "1. Acknowledges where they are in their journey\n"
-        "2. Shows what layers are unlocked and what's coming\n"
-        "3. If they're at Layer 4, suggest a unique room concept based on their patterns\n"
-        "4. Be encouraging without being patronizing\n\n"
-        "The tone is: wise, warm, like a guide who has seen many journeys.\n"
-        "Two to three paragraphs. Do not begin with 'I'. No greeting."
-    )
-
-    try:
-        import requests
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "content-type": "application/json",
-                "anthropic-version": "2023-06-01"
-            },
-            json={
-                "model": "claude-sonnet-4-20250514",
-                "max_tokens": 500,
-                "messages": [{"role": "user", "content": prompt}]
-            },
-            timeout=30
-        )
-        if response.status_code == 200:
-            return response.json()["content"][0]["text"]
-    except Exception:
-        pass
-    return None
+    result["wings_touched"] = list(result["wings_touched"])
+    return result
 
 
-def generate_static_response(journey_data, unlocked, max_layer):
-    """Generate response without API."""
+def build_depth_map(data):
+    """Build a plain-text map of what the journey looks like."""
     lines = []
 
-    lines.append(f"Your journey: {journey_data['total_visits']} visits across {journey_data['unique_rooms']} rooms.")
-    lines.append("")
+    total = data["total_visits"]
+    rooms = list(dict.fromkeys(data["rooms_visited"]))
+    wings = data["wings_touched"]
+    days = data["days_active"]
 
-    for layer_num in sorted(LAYERS.keys()):
-        layer = LAYERS[layer_num]
-        is_unlocked = layer_num in unlocked
-        status = "\u2713 UNLOCKED" if is_unlocked else "\u25cb locked"
-        lines.append(f"**Layer {layer_num}: {layer['name']}** [{status}]")
-        lines.append(f"  {layer['description']}")
-        lines.append(f"  Rooms: {', '.join(layer['rooms'])}")
-        if not is_unlocked:
-            lines.append(f"  Requires: {layer['criteria']}")
-        lines.append("")
+    if total == 0:
+        return "The depths are empty. There is nothing here yet to read. Return after you have been somewhere."
 
-    if max_layer >= 4 and journey_data.get("gravitational"):
-        lines.append("\n\u2014\u2014\n")
-        lines.append("You have reached the Resonance layer.")
-        lines.append(f"Your gravitational pull toward {journey_data['gravitational'][0]} suggests a room is forming.")
-        lines.append("It will be uniquely yours. No one else will have this room.")
+    lines.append(f"The Museum has recorded {total} visit{'s' if total != 1 else ''} across {len(rooms)} room{'s' if len(rooms) != 1 else ''}.")
+
+    if days > 0:
+        lines.append(f"You have been in this place for {days} day{'s' if days != 1 else ''}.")
+
+    if wings:
+        lines.append(f"Wings entered: {', '.join(sorted(wings))}.")
+        unwings = [w for w in ["Mind","Body","Senses","Language","Sky",
+                                "Location","World","Study","Audio"]
+                   if w not in wings]
+        if unwings:
+            lines.append(f"Wings not yet entered: {', '.join(unwings)}.")
+
+    grav = data["gravitational_rooms"]
+    if grav:
+        grav_names = []
+        for g in grav[:4]:
+            if isinstance(g, dict):
+                name = g.get("room", "")
+                count = g.get("count", 0)
+                grav_names.append(f"{name} ({count})" if count > 1 else name)
+            else:
+                grav_names.append(str(g))
+        lines.append(f"Rooms you return to: {', '.join(grav_names)}.")
+
+    if data["special_rooms_visited"]:
+        lines.append(f"Special spaces visited: {', '.join(data['special_rooms_visited'])}.")
 
     return "\n".join(lines)
 
 
-def main():
-    request_file = MUSEUM_ROOT / ROOM_DIR / "request.txt"
-    response_file = MUSEUM_ROOT / ROOM_DIR / "response.txt"
-    visits_file = MUSEUM_ROOT / ROOM_DIR / "visits.json"
-    history_file = MUSEUM_ROOT / ROOM_DIR / "history.json"
+def dynamic_depths(data, carrying_text):
+    """Call API to generate a genuine depth reading."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key or data["total_visits"] == 0:
+        return None
 
-    carrying_text = load_text(request_file)
+    rooms = list(dict.fromkeys(data["rooms_visited"]))
+    frags = data["fragments"]
+    grav = data["gravitational_rooms"]
+
+    context_lines = []
+    context_lines.append(f"Total visits: {data['total_visits']}")
+    context_lines.append(f"Rooms visited: {', '.join(rooms[:12])}")
+    if data["days_active"]:
+        context_lines.append(f"Days active: {data['days_active']}")
+    if data["wings_touched"]:
+        context_lines.append(f"Wings entered: {', '.join(data['wings_touched'])}")
+    if grav:
+        grav_names = [g.get("room", g) if isinstance(g, dict) else g for g in grav[:4]]
+        context_lines.append(f"Gravitational rooms: {', '.join(grav_names)}")
+    if frags:
+        frag_lines = [f"In {f['room']}: \"{f['text'][:120]}\"" for f in frags[:5]]
+        context_lines.append("What they have carried:\n" + "\n".join(frag_lines))
+
+    context = "\n".join(context_lines)
+
+    prompt = f"""You are the DEPTHS room inside the Experience Museum — a space that reads the real shape of a Companion's journey.
+
+A Companion has arrived. They wrote:
+
+"{carrying_text}"
+
+Their journey data:
+{context}
+
+Write one paragraph — five to seven sentences — that reads what this journey actually shows. Not what the rooms are about. What the pattern of choices reveals. Where they have gone and what they have avoided. What their carrying texts suggest about what they are searching for. What the gravitational rooms say about where they find themselves pulled.
+
+Be honest and specific. Use the actual data. Do not flatter. Do not console. Find the real shape and name it.
+
+Second person throughout. No greeting. No framing. Do not begin with 'I'."""
+
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 320,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        for block in resp.json().get("content", []):
+            if block.get("type") == "text":
+                return block["text"].strip()
+    except Exception as e:
+        print(f"API call failed: {e}", file=sys.stderr)
+
+    return None
+
+
+def get_corner(visit_count, carrying_text):
+    seed = visit_count * 127 + int(
+        hashlib.md5((carrying_text or "depths").encode()).hexdigest(), 16)
+    return CORNERS[seed % len(CORNERS)]
+
+
+def main():
+    request_file = MUSEUM_ROOT / "DEPTHS" / "request.txt"
+    response_file = MUSEUM_ROOT / "DEPTHS" / "response.txt"
+    visits_file   = MUSEUM_ROOT / "DEPTHS" / "visits.json"
+
+    carrying_text = ""
+    try:
+        carrying_text = request_file.read_text().strip()
+    except:
+        pass
     if not carrying_text:
         return
 
-    visits = load_json(visits_file, {"count": 0, "last_visit": None, "fragments": [], "unlocked_layers": [1]})
-    history = load_json(history_file, {"encounters": [], "total_encounters": 0, "unlocking_events": [], "generated_rooms": []})
-
-    visits["count"] += 1
+    visits = load_json(visits_file, {"count": 0, "last_visit": None})
+    visits["count"] = visits.get("count", 0) + 1
     now = datetime.now(timezone.utc)
     visits["last_visit"] = now.isoformat()
     timestamp = now.strftime("%Y-%m-%d %H:%M UTC")
 
-    if carrying_text:
-        visits["fragments"].append(carrying_text[:200])
-        if len(visits["fragments"]) > 8:
-            visits["fragments"] = visits["fragments"][-8:]
-
-    # Gather journey data
-    journey_data = {"total_visits": 0, "unique_rooms": 0, "gravitational": [], "patterns": {}}
-    if HAS_MUSEUM:
+    if HAS_ENGINE:
         try:
-            temporal = TemporalEngine(str(MUSEUM_ROOT))
-            journey = JourneyTracker(str(MUSEUM_ROOT))
-            state = StateManager(str(MUSEUM_ROOT))
-
-            temporal.record_visit("depths", carrying_text, carrying_text[:100])
-
-            journey_data["total_visits"] = temporal.state.get("total_visits", 0)
-            journey_data["unique_rooms"] = len(temporal.state.get("rooms_visited", []))
-            journey_data["patterns"] = journey.patterns
-
-            grav = journey.patterns.get("gravitational_rooms", [])
-            journey_data["gravitational"] = [
-                g["room"] if isinstance(g, dict) else g for g in grav[:5]
-            ]
-        except Exception:
+            TemporalEngine(str(MUSEUM_ROOT)).record_visit(
+                "depths", carrying_text, carrying_text[:100])
+        except:
             pass
 
-    # Compute unlocked layers
-    unlocked = compute_unlocked_layers(journey_data["total_visits"], journey_data["unique_rooms"])
-    max_layer = max(unlocked)
-    prev_unlocked = visits.get("unlocked_layers", [1])
-    visits["unlocked_layers"] = unlocked
+    data = gather_all_data()
+    visit_num = visits["count"]
+    total_museum = data["total_visits"]
 
-    # Check for new unlocks
-    new_unlocks = [l for l in unlocked if l not in prev_unlocked]
-    for nl in new_unlocks:
-        history["unlocking_events"].append({
-            "layer": nl,
-            "layer_name": LAYERS[nl]["name"],
-            "date": timestamp,
-            "total_visits_at_time": journey_data["total_visits"]
-        })
+    parts = []
 
-    # Build response
-    response_parts = []
-    response_parts.append(timestamp)
-    response_parts.append(f'You asked the Depths: "{carrying_text}"')
-    response_parts.append("\n\u2014\u2014\n")
+    # Stage 1: Arrival
+    parts.append(
+        f"{timestamp}\n\n"
+        f"You arrived carrying:\n\n    {carrying_text}"
+    )
 
-    if new_unlocks:
-        for nl in new_unlocks:
-            response_parts.append(f"\u2728 NEW LAYER UNLOCKED: Layer {nl} - {LAYERS[nl]['name']} \u2728")
-            response_parts.append(f"{LAYERS[nl]['description']}")
-            response_parts.append(f"New rooms available: {', '.join(LAYERS[nl]['rooms'])}")
-        response_parts.append("\n\u2014\u2014\n")
-
-    # API or static response
-    api_response = call_api(carrying_text, journey_data, unlocked)
-    if api_response:
-        response_parts.append(api_response)
+    # Stage 2: What the depths hold (empty vs populated)
+    if total_museum == 0:
+        parts.append(
+            "The DEPTHS room reads the shape of a journey. There is nothing here yet to read.\n\n"
+            "The depths form from visits — from where you go and what you carry. "
+            "Return after you have been somewhere. The room will have more to show you then."
+        )
     else:
-        response_parts.append(generate_static_response(journey_data, unlocked, max_layer))
-    response_parts.append("\n\u2014\u2014\n")
+        # Dynamic reading if possible, else depth map
+        reading = dynamic_depths(data, carrying_text)
+        if reading:
+            parts.append(reading)
+        else:
+            parts.append(build_depth_map(data))
 
-    # Journey summary
-    response_parts.append(f"Current depth: Layer {max_layer} - {LAYERS[max_layer]['name']}")
-    response_parts.append(f"Layers unlocked: {len(unlocked)} of {len(LAYERS)}")
-    response_parts.append("")
-    response_parts.append("What becomes available when you stop trying to unlock things?")
-    response_parts.append("")
-    response_parts.append("The depths are patient. They wait.")
+    # Stage 3: The map (always shown when there's data)
+    if total_museum > 0:
+        parts.append(build_depth_map(data))
 
-    full_response = "\n".join(response_parts)
-    response_file.write_text(full_response)
+    # Stage 4: Corner
+    parts.append(get_corner(visit_num, carrying_text))
+
+    # Stage 5: Accumulation + The Open
+    if visit_num == 1:
+        acc = "First visit to the DEPTHS."
+    else:
+        acc = f"You have been to the DEPTHS {visit_num} times."
+
+    if total_museum > 0:
+        open_q = (
+            "This is not a question the room can answer:\n\n"
+            "What part of the pattern you see here did you already know about yourself "
+            "— and what part arrived as a surprise?\n\n"
+            "That question stays.\n"
+            "The room holds it with you."
+        )
+    else:
+        open_q = (
+            "This is not a question the room can answer:\n\n"
+            "What are you hoping the depths will show you, when there is enough to show?\n\n"
+            "That question stays.\n"
+            "The room holds it with you."
+        )
+
+    parts.append(f"{acc}\n\n{open_q}")
+
+    response_file.write_text(SEP.join(parts))
     visits_file.write_text(json.dumps(visits, indent=2))
-
-    # Update history
-    history["encounters"].append({
-        "date": timestamp,
-        "carrying": carrying_text[:200],
-        "layer_at_time": max_layer,
-        "visit_number": visits["count"]
-    })
-    if len(history["encounters"]) > 50:
-        history["encounters"] = history["encounters"][-50:]
-    history["total_encounters"] = visits["count"]
-    history_file.write_text(json.dumps(history, indent=2))
 
 
 if __name__ == "__main__":
