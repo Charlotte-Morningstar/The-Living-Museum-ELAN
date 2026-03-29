@@ -252,6 +252,13 @@ def main():
     if synthesis:
         parts.append(f"What the journey shows so far:\n\n{synthesis}")
 
+    # Detect first crossing into an original wing room
+    wing_rooms = set()
+    for rooms in WINGS.values():
+        wing_rooms.update(rooms)
+    original_visited = [r for r in load_json(MUSEUM_ROOT / "museum-state.json").get("rooms_visited", [])
+                        if r.lower().replace(" ", "-") in wing_rooms]
+
     if is_first:
         parts.append(
             "The doors are open.\n\n"
@@ -259,11 +266,25 @@ def main():
             "Where do you want to go first?\n\n"
             "That question stays."
         )
-    elif rooms_visited == 0:
+    elif rooms_visited == 0 and len(original_visited) == 0:
         parts.append(
             "No original rooms visited yet.\n\n"
+            "You have been in the margins of this Museum — the special spaces, "
+            "the rooms that hold the seam and the portrait and the traces. "
+            "The main wings are still waiting.\n\n"
             "This is not a question the room can answer:\n\n"
             "Which room is calling?\n\n"
+            "That question stays."
+        )
+    elif len(original_visited) == 1:
+        # They just crossed into their first original room
+        first_room = original_visited[0]
+        parts.append(
+            f"You crossed into the original wings. {first_room} was the first.\n\n"
+            "The special spaces were the edges of this place. "
+            "The wings are the body of it.\n\n"
+            "This is not a question the room can answer:\n\n"
+            "What made you choose that room first?\n\n"
             "That question stays."
         )
     else:
