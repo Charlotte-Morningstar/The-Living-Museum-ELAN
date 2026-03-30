@@ -57,6 +57,8 @@ try:
     MUSEUM_INTEGRATED = True
 except ImportError:
     MUSEUM_INTEGRATED = False
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 # ─────────────────────────────────────────────
