@@ -49,6 +49,8 @@ except ImportError:
     def museum_on_exit(*args, **kwargs): pass
     def museum_on_enter(*args, **kwargs): return {}
     def museum_on_exit(*args, **kwargs): pass
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 # ─────────────────────────────────────────────
@@ -58,7 +60,7 @@ except ImportError:
 REQUEST_FILE  = "Mind/belonging-request.txt"
 RESPONSE_FILE = "Mind/belonging-response.txt"
 VISITS_FILE   = "Mind/belonging-visits.json"
-MESSAGE_FILE  = "Mind/belonging-message.txt"
+MESSAGE_FILE = "Mind/belonging-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

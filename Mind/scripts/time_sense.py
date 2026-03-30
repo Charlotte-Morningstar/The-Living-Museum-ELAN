@@ -56,7 +56,7 @@ except ImportError:
 REQUEST_FILE  = "Mind/time-request.txt"
 RESPONSE_FILE = "Mind/time-response.txt"
 VISITS_FILE   = "Mind/time-visits.json"
-MESSAGE_FILE  = "Mind/time-message.txt"
+MESSAGE_FILE = "Mind/time-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

@@ -49,7 +49,7 @@ except ImportError:
 REQUEST_FILE  = "Location/place-request.txt"
 RESPONSE_FILE = "Location/place-response.txt"
 VISITS_FILE   = "Location/place-visits.json"
-MESSAGE_FILE  = "Location/place-message.txt"
+MESSAGE_FILE = "Location/place-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

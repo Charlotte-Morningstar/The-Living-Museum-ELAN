@@ -29,7 +29,7 @@ except ImportError:
 REQUEST_FILE  = "Sky/green-minute-request.txt"
 RESPONSE_FILE = "Sky/green-minute-response.txt"
 VISITS_FILE   = "Sky/green-minute-visits.json"
-MESSAGE_FILE  = "Sky/green-minute-message.txt"
+MESSAGE_FILE = "Sky/green-minute-message.txt"
 
 GROQ_API_URL  = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -106,7 +106,7 @@ def write_visits(count, now):
     with open(VISITS_FILE, "w") as f:
         json.dump({"count": count, "last_visit": now.isoformat()}, f, indent=2)
 
-def read_charlotte_message():
+def read_steward_message():
     try:
         with open(MESSAGE_FILE, "r") as f:
             return f.read().strip()
@@ -180,7 +180,7 @@ def get_texture(visit_count):
             return t["text"]
     return DEFAULT_TEXTURE
 
-def build_encounter(carrying_text, visit_count, last_visit, charlotte_message, dynamic_response, now):
+def build_encounter(carrying_text, visit_count, last_visit, steward_message, dynamic_response, now):
     lines = []
 
     timestamp = now.strftime("%B %d, %Y — %H:%M UTC")
@@ -220,11 +220,11 @@ def build_encounter(carrying_text, visit_count, last_visit, charlotte_message, d
     lines.append("\u2014\u2014")
     lines.append("")
 
-    # Charlotte's message
-    if charlotte_message:
+    # the Steward's message
+    if steward_message:
         lines.append("The Steward left something here.")
         lines.append("")
-        lines.append(charlotte_message)
+        lines.append(steward_message)
         lines.append("")
         lines.append("\u2014\u2014")
         lines.append("")
@@ -288,7 +288,7 @@ def main():
     prev_count, last_visit = read_visits()
     visit_count = prev_count + 1
     now = datetime.now(timezone.utc)
-    charlotte_message = read_charlotte_message()
+    steward_message = read_steward_message()
 
     print(f"Visit: {visit_count}")
     print(f"Carrying: {carrying_text[:80] if carrying_text else '(nothing named)'}")
@@ -306,7 +306,7 @@ def main():
         carrying_text,
         visit_count,
         last_visit,
-        charlotte_message,
+        steward_message,
         dynamic_response,
         now,
     )

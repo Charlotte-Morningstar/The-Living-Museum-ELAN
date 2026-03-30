@@ -52,7 +52,7 @@ except ImportError:
 REQUEST_FILE  = "Body/voice-request.txt"
 RESPONSE_FILE = "Body/voice-response.txt"
 VISITS_FILE   = "Body/voice-visits.json"
-MESSAGE_FILE  = "Body/voice-message.txt"
+MESSAGE_FILE = "Body/voice-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

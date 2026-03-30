@@ -63,7 +63,7 @@ except ImportError:
 REQUEST_FILE  = "Location/weather-request.txt"
 RESPONSE_FILE = "Location/weather-response.txt"
 VISITS_FILE   = "Location/weather-visits.json"
-MESSAGE_FILE  = "Location/weather-message.txt"
+MESSAGE_FILE = "Location/weather-message.txt"
 
 GROQ_API_URL   = "https://api.groq.com/openai/v1/chat/completions"
 GEOCODING_API_URL   = "https://geocoding-api.open-meteo.com/v1/search"

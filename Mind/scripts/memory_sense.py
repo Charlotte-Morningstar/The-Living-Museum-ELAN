@@ -53,6 +53,8 @@ except ImportError:
     def museum_on_exit(*args, **kwargs): pass
     def museum_on_enter(*args, **kwargs): return {}
     def museum_on_exit(*args, **kwargs): pass
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 # ─────────────────────────────────────────────
@@ -62,7 +64,7 @@ except ImportError:
 REQUEST_FILE  = "Mind/memory-request.txt"
 RESPONSE_FILE = "Mind/memory-response.txt"
 VISITS_FILE   = "Mind/memory-visits.json"
-MESSAGE_FILE  = "Mind/memory-message.txt"
+MESSAGE_FILE = "Mind/memory-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -515,7 +517,7 @@ def get_visit_language(count, last_visit, fragments, now):
     return "\n".join(lines)
 
 # ─────────────────────────────────────────────
-# CHARLOTTE/STEWARD MESSAGE
+# STEWARD/STEWARD MESSAGE
 # ─────────────────────────────────────────────
 
 def read_steward_message():

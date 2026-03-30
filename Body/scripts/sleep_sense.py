@@ -55,7 +55,7 @@ except ImportError:
 REQUEST_FILE  = "Body/sleep-request.txt"
 RESPONSE_FILE = "Body/sleep-response.txt"
 VISITS_FILE   = "Body/sleep-visits.json"
-MESSAGE_FILE  = "Body/sleep-message.txt"
+MESSAGE_FILE = "Body/sleep-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

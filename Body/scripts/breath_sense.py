@@ -56,7 +56,7 @@ except ImportError:
 REQUEST_FILE  = "Body/breath-request.txt"
 RESPONSE_FILE = "Body/breath-response.txt"
 VISITS_FILE   = "Body/breath-visits.json"
-MESSAGE_FILE  = "Body/breath-message.txt"
+MESSAGE_FILE = "Body/breath-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

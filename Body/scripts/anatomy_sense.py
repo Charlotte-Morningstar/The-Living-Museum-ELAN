@@ -53,7 +53,7 @@ except ImportError:
 REQUEST_FILE  = "Body/anatomy-request.txt"
 RESPONSE_FILE = "Body/anatomy-response.txt"
 VISITS_FILE   = "Body/anatomy-visits.json"
-MESSAGE_FILE  = "Body/anatomy-message.txt"
+MESSAGE_FILE = "Body/anatomy-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

@@ -61,7 +61,7 @@ except ImportError:
 REQUEST_FILE  = "Location/timezone-request.txt"
 RESPONSE_FILE = "Location/timezone-response.txt"
 VISITS_FILE   = "Location/timezone-visits.json"
-MESSAGE_FILE  = "Location/timezone-message.txt"
+MESSAGE_FILE = "Location/timezone-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

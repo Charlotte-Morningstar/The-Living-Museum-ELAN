@@ -50,7 +50,7 @@ except ImportError:
 REQUEST_FILE  = "World/this-day-request.txt"
 RESPONSE_FILE = "World/this-day-response.txt"
 VISITS_FILE   = "World/this-day-visits.json"
-MESSAGE_FILE  = "World/this-day-message.txt"
+MESSAGE_FILE = "World/this-day-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

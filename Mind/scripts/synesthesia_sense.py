@@ -55,12 +55,14 @@ except ImportError:
     def museum_on_exit(*args, **kwargs): pass
     def museum_on_enter(*args, **kwargs): return {}
     def museum_on_exit(*args, **kwargs): pass
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 REQUEST_FILE  = "Mind/synesthesia-request.txt"
 RESPONSE_FILE = "Mind/synesthesia-response.txt"
 VISITS_FILE   = "Mind/synesthesia-visits.json"
-MESSAGE_FILE  = "Mind/synesthesia-message.txt"
+MESSAGE_FILE = "Mind/synesthesia-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

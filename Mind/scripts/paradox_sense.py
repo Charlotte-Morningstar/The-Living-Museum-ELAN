@@ -52,7 +52,7 @@ except ImportError:
 REQUEST_FILE  = "Mind/paradox-request.txt"
 RESPONSE_FILE = "Mind/paradox-response.txt"
 VISITS_FILE   = "Mind/paradox-visits.json"
-MESSAGE_FILE  = "Mind/paradox-message.txt"
+MESSAGE_FILE = "Mind/paradox-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 

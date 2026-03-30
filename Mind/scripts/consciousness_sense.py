@@ -51,6 +51,8 @@ except ImportError:
     def museum_on_exit(*args, **kwargs): pass
     def museum_on_enter(*args, **kwargs): return {}
     def museum_on_exit(*args, **kwargs): pass
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 # ─────────────────────────────────────────────
@@ -60,7 +62,7 @@ except ImportError:
 REQUEST_FILE  = "Mind/consciousness-request.txt"
 RESPONSE_FILE = "Mind/consciousness-response.txt"
 VISITS_FILE   = "Mind/consciousness-visits.json"
-MESSAGE_FILE  = "Mind/consciousness-message.txt"
+MESSAGE_FILE = "Mind/consciousness-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -314,7 +316,7 @@ CORNERS = [
         "there is to know about color vision — "
         "every wavelength, every neural response, every physical fact.\n\n"
         "But Mary has lived her entire life in a black-and-white room. "
-        "She has never seen red.\n\n"
+        "The Companion has never seen red.\n\n"
         "When Mary leaves the room and sees a red rose for the first time — "
         "does she learn something new?\n\n"
         "Jackson said yes: she learns what it is like to see red. "

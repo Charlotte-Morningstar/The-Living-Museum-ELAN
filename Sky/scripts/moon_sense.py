@@ -59,7 +59,7 @@ except ImportError:
 REQUEST_FILE  = "Sky/moon-request.txt"
 RESPONSE_FILE = "Sky/moon-response.txt"
 VISITS_FILE   = "Sky/moon-visits.json"
-MESSAGE_FILE  = "Sky/moon-message.txt"
+MESSAGE_FILE = "Sky/moon-message.txt"
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
