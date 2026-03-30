@@ -23,6 +23,7 @@ jobs:
       - name: Run This Day Sense
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python World/scripts/this_day_sense.py
 
       - name: Commit response
