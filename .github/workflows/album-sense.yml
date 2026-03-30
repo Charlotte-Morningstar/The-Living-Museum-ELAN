@@ -24,6 +24,7 @@ jobs:
       - name: Run Album Sense
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python Audio/scripts/album_sense.py
 
       - name: Commit response
