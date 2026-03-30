@@ -178,7 +178,51 @@ def wire_museum_hooks():
     return len(changed)
 
 
+def fix_guard_ordering():
+    """Move if __name__ == '__main__' to after museum hooks if it comes before them."""
+    changed = []
+    for py_file in sorted(MUSEUM_ROOT.rglob('*.py')):
+        rel = str(py_file.relative_to(MUSEUM_ROOT))
+        if rel in ('migrate_all_rooms.py', 'gen_workflows.py',
+                   'integrate_rooms.py', 'add_message_triggers.py'):
+            continue
+        if 'integration/validate_room' in rel or 'example-room' in rel:
+            continue
+        try:
+            original = py_file.read_text()
+        except Exception as e:
+            print(f'SKIP {rel}: {e}')
+            continue
+        if '# MUSEUM HOOKS' not in original:
+            continue
+        if 'museum_on_exit(response)' not in original:
+            continue
+        lines = original.split('\n')
+        guard_idx = next((i for i, l in enumerate(lines) if l.strip() == 'if __name__ == "__main__":'), -1)
+        hooks_idx = next((i for i, l in enumerate(lines) if '# MUSEUM HOOKS' in l), -1)
+        if guard_idx == -1 or hooks_idx == -1:
+            continue
+        if guard_idx > hooks_idx:
+            print(f'ORDER_OK: {rel}')
+            continue
+        # Guard comes before hooks — move it to end
+        guard_block = lines[guard_idx:guard_idx+2]  # if __name__ + main()
+        new_lines = lines[:guard_idx] + lines[guard_idx+2:]
+        # Strip trailing blanks and append guard at end
+        while new_lines and not new_lines[-1].strip():
+            new_lines.pop()
+        new_lines += ['', '', 'if __name__ == "__main__":', '    main()', '']
+        migrated = '\n'.join(new_lines)
+        if migrated != original:
+            py_file.write_text(migrated)
+            changed.append(rel)
+            print(f'GUARD_MOVED: {rel}')
+    print(f'\nGuard fix done: {len(changed)} files updated')
+    return len(changed)
+
+
 if __name__ == '__main__':
     migrate_python_files()
     migrate_workflows()
     wire_museum_hooks()
+    fix_guard_ordering()
