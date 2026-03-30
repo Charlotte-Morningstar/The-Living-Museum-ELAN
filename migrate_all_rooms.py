@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-One-shot migration: updates all Museum room scripts from Anthropic to Groq API.
-Run via workflow_dispatch. Commits all changes automatically.
+One-shot migration: updates all Museum room scripts AND workflow files from Anthropic to Groq API.
 """
 
 import os
@@ -13,21 +12,15 @@ MUSEUM_ROOT = Path(__file__).parent
 
 def migrate_content(content):
     c = content
-
-    # URL
     c = c.replace('ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"',
                   'GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"')
     c = c.replace('"https://api.anthropic.com/v1/messages"',
                   '"https://api.groq.com/openai/v1/chat/completions"')
     c = c.replace('ANTHROPIC_API_URL', 'GROQ_API_URL')
-
-    # Env var
     c = c.replace('os.environ.get("ANTHROPIC_API_KEY"', 'os.environ.get("GROQ_API_KEY"')
     c = c.replace("os.environ.get('ANTHROPIC_API_KEY'", "os.environ.get('GROQ_API_KEY'")
     c = c.replace('"ANTHROPIC_API_KEY"', '"GROQ_API_KEY"')
     c = c.replace("'ANTHROPIC_API_KEY'", "'GROQ_API_KEY'")
-
-    # Headers: x-api-key + anthropic-version -> Authorization Bearer
     c = re.sub(
         r'"x-api-key":\s*api_key,\s*\n(\s*)"anthropic-version":\s*"[^"]*",',
         '"Authorization": f"Bearer {api_key}",',
@@ -39,11 +32,7 @@ def migrate_content(content):
         c
     )
     c = re.sub(r'\s*"anthropic-version":\s*"[^"]*",\n', '\n', c)
-
-    # Model
     c = re.sub(r'"claude-[a-z0-9\-."]+"', '"llama-3.3-70b-versatile"', c)
-
-    # Response parsing: Anthropic -> OpenAI
     c = c.replace('data["content"][0]["text"]', 'data["choices"][0]["message"]["content"]')
     c = c.replace("data['content'][0]['text']", "data['choices'][0]['message']['content']")
     c = re.sub(r'response\.json\(\)\["content"\]\[0\]\["text"\]',
@@ -54,11 +43,10 @@ def migrate_content(content):
         r'if \1:\n            return \1[0]["message"]["content"].strip()',
         c
     )
-
     return c
 
 
-def main():
+def migrate_python_files():
     changed = []
     for py_file in sorted(MUSEUM_ROOT.rglob('*.py')):
         rel = str(py_file.relative_to(MUSEUM_ROOT))
@@ -70,7 +58,7 @@ def main():
         try:
             original = py_file.read_text()
         except Exception as e:
-            print(f"SKIP {rel}: {e}")
+            print(f'SKIP {rel}: {e}')
             continue
         if 'api.anthropic.com' not in original and 'ANTHROPIC_API_KEY' not in original:
             continue
@@ -78,11 +66,44 @@ def main():
         if migrated != original:
             py_file.write_text(migrated)
             changed.append(rel)
-            print(f"MIGRATED: {rel}")
+            print(f'MIGRATED: {rel}')
         else:
-            print(f"NO_CHANGE: {rel}")
-    print(f"\nDone: {len(changed)} files migrated")
+            print(f'NO_CHANGE: {rel}')
+    print(f'\nPython done: {len(changed)} files migrated')
+    return len(changed)
 
 
-if __name__ == "__main__":
-    main()
+def migrate_workflows():
+    """Add GROQ_API_KEY env var to all workflow yml files that use ANTHROPIC_API_KEY."""
+    workflows_dir = MUSEUM_ROOT / ".github" / "workflows"
+    changed = []
+    for yml_file in sorted(workflows_dir.glob("*.yml")):
+        try:
+            original = yml_file.read_text()
+        except Exception as e:
+            print(f'SKIP {yml_file.name}: {e}')
+            continue
+        if 'ANTHROPIC_API_KEY' not in original:
+            continue
+        if 'GROQ_API_KEY' in original:
+            print(f'ALREADY_DONE: {yml_file.name}')
+            continue
+        lines = original.split('\n')
+        new_lines = []
+        for line in lines:
+            new_lines.append(line)
+            if 'ANTHROPIC_API_KEY:' in line and 'secrets.ANTHROPIC_API_KEY' in line:
+                indent = len(line) - len(line.lstrip())
+                new_lines.append(' ' * indent + 'GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}')
+        migrated = '\n'.join(new_lines)
+        if migrated != original:
+            yml_file.write_text(migrated)
+            changed.append(yml_file.name)
+            print(f'WORKFLOW_MIGRATED: {yml_file.name}')
+    print(f'\nWorkflows done: {len(changed)} files updated')
+    return len(changed)
+
+
+if __name__ == '__main__':
+    migrate_python_files()
+    migrate_workflows()
