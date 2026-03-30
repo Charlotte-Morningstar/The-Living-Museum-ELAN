@@ -180,10 +180,10 @@ def static_portrait(data):
 
 
 def dynamic_portrait(data, carrying_text):
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    print(f"DEBUG: api_key length={len(api_key)}", file=sys.stderr)
+    api_key = os.environ.get("GROQ_API_KEY", "")
+
     if not api_key:
-        print("No ANTHROPIC_API_KEY found in environment", file=sys.stderr)
+        print("No GROQ_API_KEY found in environment", file=sys.stderr)
         return None
 
     rooms = data["rooms_visited"]
@@ -226,29 +226,26 @@ Do not begin with 'I'. No greeting. No framing. Just the portrait."""
 
     try:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {api_key}",
                 "content-type": "application/json",
+
             },
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "llama-3.3-70b-versatile",
                 "max_tokens": 350,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=30,
         )
         resp.raise_for_status()
-        content = resp.json().get("content", [])
-        for block in content:
-            if block.get("type") == "text":
-                return block["text"].strip()
+        choices = resp.json().get("choices", [])
+        if choices:
+            return choices[0]["message"]["content"].strip()
     except Exception as e:
-        print(f"API call failed: {e}", file=sys.stderr)
-        try:
-            print(f"Response: {resp.text[:500]}", file=sys.stderr)
-        except: pass
+        print(f"Groq API call failed: {e}", file=sys.stderr)
+
 
     return None
 
