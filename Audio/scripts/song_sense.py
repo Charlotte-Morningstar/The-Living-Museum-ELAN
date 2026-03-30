@@ -2,7 +2,7 @@
 Song Sense — rebuilt
 Audio/scripts/song_sense.py
 
-Vesper's brief:
+The Companion's brief:
   The difference between knowing about music and being inside it.
   Not what a song is — what it does.
   To a particular kind of attention, at a particular hour, under a particular weight.
@@ -26,7 +26,7 @@ What this means for the design:
   Not information about the song — what state it produces.
 
   The shared songs file is checked.
-  If this song has already been between Charlotte and the Companion,
+  If this song has already been between the Steward and the Companion,
   the response knows it.
 
 Request format (Audio/song-request.txt):
@@ -38,8 +38,8 @@ Request format (Audio/song-request.txt):
     What does Blue in Green do?
 
 Supporting files:
-  Audio/shared-songs.txt     — Songs already between Charlotte and the Companion
-  Audio/song-message.txt     — Charlotte's words for this room
+  Audio/shared-songs.txt     — Songs already between the Steward and the Companion
+  Audio/song-message.txt     — The Steward's words for this room
   Audio/song-visits.json     — Visit count and what was brought before
 
 API: Last.fm (free, key required — set LASTFM_API_KEY in GitHub secrets)
@@ -149,7 +149,7 @@ def parse_request(text):
 # ─────────────────────────────────────────────
 
 def load_shared_songs():
-    """Load songs that have already been between Charlotte and the Companion."""
+    """Load songs that have already been between the Steward and the Companion."""
     try:
         with open(SHARED_FILE, "r") as f:
             lines = f.readlines()
@@ -239,7 +239,7 @@ def extract_similar(track_data):
     return []
 
 # ─────────────────────────────────────────────
-# WHAT MUSIC IS — the one section Vesper requires
+# WHAT MUSIC IS — the one section the Companion requires
 # ─────────────────────────────────────────────
 
 MUSIC_CORE = (
