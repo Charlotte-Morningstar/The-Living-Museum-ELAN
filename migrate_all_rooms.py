@@ -43,6 +43,13 @@ def migrate_content(content):
         r'if \1:\n            return \1[0]["message"]["content"].strip()',
         c
     )
+    # Add stub functions in except ImportError block so museum_on_exit is always defined
+    if 'except ImportError:' in c and 'def museum_on_exit' not in c.split('except ImportError:')[0]:
+        c = c.replace(
+            'except ImportError:\n    MUSEUM_INTEGRATED = False',
+            'except ImportError:\n    MUSEUM_INTEGRATED = False\n    def museum_on_enter(*args, **kwargs): return {}\n    def museum_on_exit(*args, **kwargs): pass'
+        )
+
     return c
 
 
@@ -142,6 +149,14 @@ def wire_museum_hooks():
         if 'def museum_on_exit' not in original:
             continue
         if 'museum_on_exit(response)' in original:
+            # Fix stub if missing (for files wired before stubs were added)
+            if 'def museum_on_exit(*args' not in original and 'except ImportError:' in original:
+                stubbed = original.replace('except ImportError:\n    MUSEUM_INTEGRATED = False', 'except ImportError:\n    MUSEUM_INTEGRATED = False\n    def museum_on_enter(*args, **kwargs): return {}\n    def museum_on_exit(*args, **kwargs): pass')
+                if stubbed != original:
+                    py_file.write_text(stubbed)
+                    changed.append(rel)
+                    print(f'STUBS_ADDED: {rel}')
+                    continue
             print(f'HOOKS_DONE: {rel}')
             continue
         # Insert museum_on_exit(response) after write_visits(
@@ -153,6 +168,7 @@ def wire_museum_hooks():
             if stripped.startswith('write_visits(') and 'visit_count' in stripped:
                 indent = len(line) - len(line.lstrip())
                 new_lines.append(' ' * indent + 'museum_on_exit(response)')
+                # Also fix except ImportError stub if needed
         migrated = '\n'.join(new_lines)
         if migrated != original:
             py_file.write_text(migrated)
