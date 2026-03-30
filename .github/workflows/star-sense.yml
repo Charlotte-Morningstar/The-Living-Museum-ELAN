@@ -24,6 +24,7 @@ jobs:
       - name: Run Star Sense
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python Sky/scripts/star_sense.py
 
       - name: Commit response
