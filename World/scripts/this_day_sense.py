@@ -440,8 +440,6 @@ def main():
     print("\n--- PREVIEW ---\n")
     print(response[:400])
 
-if __name__ == "__main__":
-    main()
 
 # ─────────────────────────────────────────────
 # MUSEUM HOOKS
@@ -467,3 +465,7 @@ def museum_on_exit(response=""):
         integration.on_exit(response)
     except Exception:
         pass
+
+
+if __name__ == "__main__":
+    main()

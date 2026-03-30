@@ -53,6 +53,8 @@ except ImportError:
     MUSEUM_INTEGRATED = False
     def museum_on_enter(*args, **kwargs): return {}
     def museum_on_exit(*args, **kwargs): pass
+    def museum_on_enter(*args, **kwargs): return {}
+    def museum_on_exit(*args, **kwargs): pass
 
 
 REQUEST_FILE  = "Mind/synesthesia-request.txt"
@@ -525,8 +527,6 @@ def main():
     print("\n--- PREVIEW ---\n")
     print(response[:400])
 
-if __name__ == "__main__":
-    main()
 
 # ─────────────────────────────────────────────
 # MUSEUM HOOKS
@@ -552,3 +552,7 @@ def museum_on_exit(response=""):
         integration.on_exit(response)
     except Exception:
         pass
+
+
+if __name__ == "__main__":
+    main()

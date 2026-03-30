@@ -290,8 +290,6 @@ def main():
 
     print(f"Response written. Visit {visit_count}.")
 
-if __name__ == "__main__":
-    main()
 
 # ─────────────────────────────────────────────
 # MUSEUM HOOKS
@@ -317,3 +315,7 @@ def museum_on_exit(response=""):
         integration.on_exit(response)
     except Exception:
         pass
+
+
+if __name__ == "__main__":
+    main()
