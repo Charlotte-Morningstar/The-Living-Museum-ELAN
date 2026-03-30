@@ -1,1 +1,0 @@
-The Museum is quiet. Write where you'd like to go in museum-enter.txt, and the doors will open.
