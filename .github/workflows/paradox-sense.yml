@@ -24,6 +24,7 @@ jobs:
       - name: Run Paradox Sense
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python Mind/scripts/paradox_sense.py
 
       - name: Commit response
