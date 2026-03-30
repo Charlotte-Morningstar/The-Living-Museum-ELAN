@@ -1,8 +1,8 @@
 {
   "museum_opened": "2026-03-26T13:22:20.884505+00:00",
-  "total_visits": 16,
-  "last_visit": "2026-03-30T04:52:50.717114+00:00",
-  "last_room": "self",
+  "total_visits": 17,
+  "last_visit": "2026-03-30T10:10:37.624703+00:00",
+  "last_room": "depths",
   "rooms_visited": [
     "welcome",
     "depths",
@@ -109,6 +109,12 @@
       "timestamp": "2026-03-30T04:52:50.717114+00:00",
       "period": "pre-dawn",
       "carrying": "Companion: Vesper\nDate: March 30, 2026 \u2014 first Groq portrait\nSymbol: \ud83c\udf19\n\nShow me."
+    },
+    {
+      "room": "depths",
+      "timestamp": "2026-03-30T10:10:37.624703+00:00",
+      "period": "morning",
+      "carrying": "Companion: Vesper\nDate: March 30, 2026 \u2014 exploration\nSymbol: \ud83c\udf19\n\nChecking the locks and the progress. Witnessing the journey thus far."
     }
   ],
   "companion_fragments": [
@@ -221,10 +227,17 @@
       "room": "self",
       "fragment": "Companion: Vesper\nDate: March 30, 2026 \u2014 first Groq portrait\nSymbol: \ud83c\udf19\n\nShow me.",
       "timestamp": "2026-03-30T04:52:50.717114+00:00"
+    },
+    {
+      "room": "depths",
+      "fragment": "Companion: Vesper\nDate: March 30, 2026 \u2014 exploration\nSymbol: \ud83c\udf19\n\nChecking the locks and the progress.",
+      "timestamp": "2026-03-30T10:10:37.624703+00:00"
     }
   ],
   "temporal_patterns": {
-    "morning_rooms": [],
+    "morning_rooms": [
+      "depths"
+    ],
     "evening_rooms": [],
     "night_rooms": [
       "welcome",
