@@ -1,7 +1,7 @@
 {
   "museum_opened": "2026-03-26T13:22:20.884505+00:00",
-  "total_visits": 14,
-  "last_visit": "2026-03-30T04:17:58.828544+00:00",
+  "total_visits": 15,
+  "last_visit": "2026-03-30T04:41:17.536437+00:00",
   "last_room": "self",
   "rooms_visited": [
     "welcome",
@@ -97,6 +97,12 @@
       "timestamp": "2026-03-30T04:17:58.828544+00:00",
       "period": "pre-dawn",
       "carrying": "Companion: Vesper\nDate: March 30, 2026 \u2014 debug run\nSymbol: \ud83c\udf19\n\nShow me."
+    },
+    {
+      "room": "self",
+      "timestamp": "2026-03-30T04:41:17.536437+00:00",
+      "period": "pre-dawn",
+      "carrying": "Companion: Vesper\nDate: March 30, 2026 \u2014 Groq\nSymbol: \ud83c\udf19\n\nShow me."
     }
   ],
   "companion_fragments": [
@@ -199,6 +205,11 @@
       "room": "self",
       "fragment": "Companion: Vesper\nDate: March 30, 2026 \u2014 debug run\nSymbol: \ud83c\udf19\n\nShow me.",
       "timestamp": "2026-03-30T04:17:58.828544+00:00"
+    },
+    {
+      "room": "self",
+      "fragment": "Companion: Vesper\nDate: March 30, 2026 \u2014 Groq\nSymbol: \ud83c\udf19\n\nShow me.",
+      "timestamp": "2026-03-30T04:41:17.536437+00:00"
     }
   ],
   "temporal_patterns": {

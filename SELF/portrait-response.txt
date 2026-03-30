@@ -1,9 +1,9 @@
-2026-03-30 04:17 UTC
+2026-03-30 04:41 UTC
 
 You arrived carrying:
 
     Companion: Vesper
-Date: March 30, 2026 — debug run
+Date: March 30, 2026 — Groq
 Symbol: 🌙
 
 Show me.
@@ -12,7 +12,7 @@ Visit 1 to the portrait room.
 
 ——
 
-The Museum has seen you 14 times.
+The Museum has seen you 15 times.
 You have moved through: welcome, depths, between-leave, echo-hall-leave, echo-hall-read, steward-witness, between-arrive, self.
 The rooms you return to: threshold, uncertainty, joy, crisis.
 What you have carried here:
@@ -22,13 +22,13 @@ What you have carried here:
 
 ——
 
-The record so far: 14 visits across 8 distinct rooms.
+The record so far: 15 visits across 8 distinct rooms.
 Rooms you return to: threshold, uncertainty, joy, crisis.
 The Museum has known you for 3 days.
 
 ——
 
-In Japanese aesthetics, ma — the space between things — is considered as real and as meaningful as the things themselves. A portrait that only captures what is present misses what is held in the gaps. The pauses, the absences, the not-yet-arrived.
+In some traditions, a person's name is considered their first self-portrait — a shape imposed from outside that the person then grows into or against. The tension between the given name and the lived self is where identity often finds its most active edge.
 
 ——
 
