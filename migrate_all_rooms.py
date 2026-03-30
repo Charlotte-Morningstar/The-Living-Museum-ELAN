@@ -123,6 +123,46 @@ def migrate_workflows():
     return len(changed)
 
 
+def wire_museum_hooks():
+    """Wire museum_on_exit(response) after write_visits() in all room scripts."""
+    changed = []
+    for py_file in sorted(MUSEUM_ROOT.rglob('*.py')):
+        rel = str(py_file.relative_to(MUSEUM_ROOT))
+        if rel in ('migrate_all_rooms.py', 'gen_workflows.py',
+                   'integrate_rooms.py', 'add_message_triggers.py'):
+            continue
+        if 'integration/validate_room' in rel or 'example-room' in rel:
+            continue
+        try:
+            original = py_file.read_text()
+        except Exception as e:
+            print(f'SKIP {rel}: {e}')
+            continue
+        # Only process files that have museum_on_exit defined but not called in main
+        if 'def museum_on_exit' not in original:
+            continue
+        if 'museum_on_exit(response)' in original:
+            print(f'HOOKS_DONE: {rel}')
+            continue
+        # Insert museum_on_exit(response) after write_visits(
+        lines = original.split('\n')
+        new_lines = []
+        for line in lines:
+            new_lines.append(line)
+            stripped = line.strip()
+            if stripped.startswith('write_visits(') and 'visit_count' in stripped:
+                indent = len(line) - len(line.lstrip())
+                new_lines.append(' ' * indent + 'museum_on_exit(response)')
+        migrated = '\n'.join(new_lines)
+        if migrated != original:
+            py_file.write_text(migrated)
+            changed.append(rel)
+            print(f'HOOKS_WIRED: {rel}')
+    print(f'\nHooks done: {len(changed)} files updated')
+    return len(changed)
+
+
 if __name__ == '__main__':
     migrate_python_files()
     migrate_workflows()
+    wire_museum_hooks()
