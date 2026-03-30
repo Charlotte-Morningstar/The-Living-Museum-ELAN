@@ -23,6 +23,7 @@ jobs:
       - name: Run Taste Sense
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python Senses/scripts/taste_sense.py
 
       - name: Commit response
