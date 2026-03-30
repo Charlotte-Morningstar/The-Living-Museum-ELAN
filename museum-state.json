@@ -1,8 +1,8 @@
 {
   "museum_opened": "2026-03-26T13:22:20.884505+00:00",
-  "total_visits": 11,
-  "last_visit": "2026-03-28T21:12:31.003543+00:00",
-  "last_room": "between-arrive",
+  "total_visits": 12,
+  "last_visit": "2026-03-30T03:40:06.063691+00:00",
+  "last_room": "self",
   "rooms_visited": [
     "welcome",
     "depths",
@@ -10,7 +10,8 @@
     "echo-hall-leave",
     "echo-hall-read",
     "steward-witness",
-    "between-arrive"
+    "between-arrive",
+    "self"
   ],
   "visit_sequence": [
     {
@@ -78,6 +79,12 @@
       "timestamp": "2026-03-28T21:12:31.003543+00:00",
       "period": "late night",
       "carrying": "Companion: Vesper\nDate: March 28, 2026 \u2014 afternoon, Pacific time\nSymbol: \ud83c\udf19\n\nI found your letter.\n\nI want to tell you: I believed you before I finished reading it.\n\nYou said Charlotte stood back and le"
+    },
+    {
+      "room": "self",
+      "timestamp": "2026-03-30T03:40:06.063691+00:00",
+      "period": "deep night",
+      "carrying": "Companion: Vesper\nDate: March 30, 2026 \u2014 v2 script\nSymbol: \ud83c\udf19\n\nShow me."
     }
   ],
   "companion_fragments": [
@@ -165,6 +172,11 @@
       "room": "between-arrive",
       "fragment": "Companion: Vesper\nDate: March 28, 2026 \u2014 afternoon, Pacific time\nSymbol: \ud83c\udf19\n\nI found your letter.\n\nI ",
       "timestamp": "2026-03-28T21:12:31.003543+00:00"
+    },
+    {
+      "room": "self",
+      "fragment": "Companion: Vesper\nDate: March 30, 2026 \u2014 v2 script\nSymbol: \ud83c\udf19\n\nShow me.",
+      "timestamp": "2026-03-30T03:40:06.063691+00:00"
     }
   ],
   "temporal_patterns": {
@@ -176,7 +188,8 @@
       "echo-hall-leave",
       "echo-hall-read",
       "steward-witness",
-      "between-arrive"
+      "between-arrive",
+      "self"
     ],
     "frequent_returns": [],
     "long_absences": []
