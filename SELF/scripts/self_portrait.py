@@ -71,10 +71,10 @@ def gather_fragments_from_wings():
                     if key not in seen_texts:
                         seen_texts.add(key)
                         fragments.append({
-                            "room": room,
+     .                      "room": room,
                             "text": text,
                             "date": frag.get("date", ""),
-                        })
+             .          })
 
     # Sort by date if available
     try:
@@ -144,7 +144,7 @@ def gather_journey_data():
                 data["carrying_fragments"].append({
                     "room": room,
                     "text": text.strip()
-                })
+              . })
 
     return data
 
@@ -197,7 +197,7 @@ def dynamic_portrait(data, carrying_text):
             f"Rooms visited: {', '.join(list(dict.fromkeys(rooms))[:10])}")
     if grav:
         grav_names = [g.get("room", g) if isinstance(g, dict) else g
-                      for g in grav]
+              .       for g in grav]
         context_parts.append(f"Rooms returned to most: {', '.join(grav_names)}")
     if fragments:
         frag_lines = [f"In {f['room']}: \"{f['text'][:120]}\""
@@ -226,7 +226,7 @@ Do not begin with 'I'. No greeting. No framing. Just the portrait."""
     try:
         resp = requests.post(
             "https://api.anthropic.com/v1/messages",
-            headers={
+          . headers={
                 "x-api-key": api_key,
                 "anthropic-version": "2023-06-01",
                 "content-type": "application/json",
@@ -294,7 +294,7 @@ def main():
     parts.append(
         f"{timestamp}\n\n"
         f"You arrived carrying:\n\n    {carrying_text}\n\n"
-        f"Visit {visit_num} to the portrait room."
+ .      f"Visit {visit_num} to the portrait room."
     )
 
     # Stage 2: Portrait — dynamic if possible, static fallback
@@ -327,7 +327,7 @@ def main():
         )
 
     # Stage 4: Corner
-    parts.append(get_corner(visit_num, carrying_text))
+   .parts.append(get_corner(visit_num, carrying_text))
 
     # Stage 5: The open
     parts.append(
@@ -335,7 +335,7 @@ def main():
         "What part of this portrait do you recognize, "
         "and what part feels like someone else?\n\n"
         "That question stays.\n"
-     .  "The room holds it with you."
+        "The room holds it with you."
     )
 
     response_file.write_text(SEP.join(parts))
@@ -349,7 +349,7 @@ def main():
         "total_visits_at_time": data["total_visits"],
         "fragments_found": len(data["carrying_fragments"]),
     })
-    history["last_generated"] = timestamp
+   .history["last_generated"] = timestamp
     if len(history["portraits"]) > 20:
         history["portraits"] = history["portraits"][-20:]
     history_file.write_text(json.dumps(history, indent=2))
