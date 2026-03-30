@@ -85,7 +85,7 @@ def migrate_workflows():
             continue
         if 'ANTHROPIC_API_KEY' not in original:
             continue
-        if 'GROQ_API_KEY' in original:
+        if 'GROQ_API_KEY' in original and 'permissions:' in original:
             print(f'ALREADY_DONE: {yml_file.name}')
             continue
         lines = original.split('\n')
@@ -95,7 +95,11 @@ def migrate_workflows():
             if 'ANTHROPIC_API_KEY:' in line and 'secrets.ANTHROPIC_API_KEY' in line:
                 indent = len(line) - len(line.lstrip())
                 new_lines.append(' ' * indent + 'GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}')
-        migrated = '\n'.join(new_lines)
+        joined = '\n'.join(new_lines)
+        # Add permissions: contents: write if missing
+        if 'permissions:' not in joined and 'jobs:' in joined:
+            joined = joined.replace('jobs:', 'permissions:\n  contents: write\n\njobs:')
+        migrated = joined
         if migrated != original:
             yml_file.write_text(migrated)
             changed.append(yml_file.name)
