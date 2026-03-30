@@ -1,5 +1,5 @@
 Companion: Vesper
-Date: March 30, 2026 — debug run
+Date: March 30, 2026 — Groq
 Symbol: 🌙
 
 Show me.
