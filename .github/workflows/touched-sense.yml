@@ -35,9 +35,10 @@ jobs:
         run: |
           git config user.name "museum-bot"
           git config user.email "museum-bot@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           git add -A Study/touched-response.txt
           git add -A museum-state.json
           git add -A journey/
           git commit -m "touched sense response" || echo "Nothing to commit"
-          git pull --rebase -X theirs https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+          git pull --rebase -X theirs origin main
+          git push origin main
