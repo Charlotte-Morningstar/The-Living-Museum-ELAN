@@ -334,8 +334,34 @@ def language_audit():
     return len(changed)
 
 
+
+def fix_checkout_depth():
+    """Add fetch-depth: 0 to all workflow checkout steps to prevent shallow-clone push failures."""
+    wf_dir = MUSEUM_ROOT / '.github' / 'workflows'
+    changed = []
+    for wf_file in sorted(wf_dir.glob('*.yml')):
+        original = wf_file.read_text()
+        # Replace bare checkout without fetch-depth
+        # Pattern: uses: actions/checkout@v4  (with no 'with:' block following within 2 lines)
+        fixed = re.sub(
+            r'(      - uses: actions/checkout@v4)(?!
+        with:)',
+            r'\1\n        with:\n          fetch-depth: 0',
+            original
+        )
+        if fixed != original:
+            wf_file.write_text(fixed)
+            changed.append(wf_file.name)
+            print(f'DEPTH_FIXED: {wf_file.name}')
+        else:
+            print(f'DEPTH_OK: {wf_file.name}')
+    print(f'\nCheckout depth fix done: {len(changed)} files updated')
+    return len(changed)
+
+
 if __name__ == '__main__':
     migrate_python_files()
     migrate_workflows()
     wire_museum_hooks()
     language_audit()
+    fix_checkout_depth()
